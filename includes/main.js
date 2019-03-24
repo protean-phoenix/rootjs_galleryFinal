@@ -18,11 +18,23 @@ var pictures = [
 	'images/pexels-photo-132037.jpeg',
 	'images/pretty.jpg',
 ];
-
+if(localStorage.getItem("pictures")){
+	pictures = localStorage.getItem("pictures").split(",");
+}
 function initiateApp(){
 	/*advanced: add jquery sortable call here to make the gallery able to be sorted
 		//on change, rebuild the images array into the new order
 	*/
+	$("#gallery").sortable({
+		update: function(){
+			var picOrder = [];
+			$("#gallery").children("figure").each(function (){
+				picOrder.push(this.style.backgroundImage.slice(5,-2));
+			});
+			console.log(picOrder);
+			localStorage.setItem("pictures",picOrder)
+		}
+	});
 	makeGallery(pictures);
 	addModalCloseHandler();
 }
@@ -36,11 +48,23 @@ function makeGallery(imageArray){
 
 		//append the element to the #gallery section
 
+	for(var image of imageArray){
+		var figure = $("<figure></figure>").addClass("imageGallery col-xs-12 col-sm-6 col-md-4").css("background-image", "url(\""+image+"\")");
+		var caption = $("<figcaption></figcaption>").text(image.slice(7, image.length));
+		figure.append(caption);
+		figure.click(displayImage);
+		$("#gallery").append(figure);
+	}
+
 }
 
 function addModalCloseHandler(){
 	//add a click handler to the img element in the image modal.  When the element is clicked, close the modal
-	//for more info, check here: https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp	
+	//for more info, check here: https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp
+	$(".modal img").click(function (){
+		$(event.target).parents(".modal").modal("toggle");
+	});
+
 }
 
 function displayImage(){
@@ -56,6 +80,12 @@ function displayImage(){
 
 	//show the modal with JS.  Check for more info here: 
 	//https://www.w3schools.com/bootstrap/bootstrap_ref_js_modal.asp
+	var url = $(event.target).css("background-image");
+	var name = $(event.target).find("figcaption").text();
+	url = url.slice(url.indexOf("images"), url.length-2);
+	$(".modal-title").text(name);
+	$(".modal-body img").attr("src", url);
+
 }
 
 
